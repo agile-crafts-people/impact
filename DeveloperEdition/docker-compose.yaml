@@ -1,10 +1,10 @@
-# docker-compose.yaml for {{info.name}} developers edition
+# docker-compose.yaml for Creators Dashboard developers edition
 services:
   ##################################
   # Welcome Service
   ##################################
   welcome:
-    image: {{org.docker_host}}/{{org.docker_org}}/{{info.slug}}:latest
+    image: ghcr.io/agile-crafts-people/impact:latest
     ports:
       - "127.0.0.1:8080:80"
     profiles:
@@ -17,21 +17,21 @@ services:
   # Custom Runbook API Service (Deployed Profile)
   ##################################
   runbook-api:
-    image: {{org.docker_host}}/{{org.docker_org}}/{{info.slug}}_runbook_api:latest
+    image: ghcr.io/agile-crafts-people/impact_runbook_api:latest
     container_name: runbook_api
     working_dir: /opt/stage0/runner
     restart: no
     ports:
-      - "127.0.0.1:{{info.base_port + 0}}:{{info.base_port + 0}}"
+      - "127.0.0.1:9090:9090"
     environment:
-      API_PORT: {{info.base_port + 0}}
+      API_PORT: 9090
       ENABLE_LOGIN: "true"
       LOGGING_LEVEL: "INFO"
       JWT_SECRET: ${JWT_SECRET}
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       SSH_KEY: ${SSH_KEY}
       MOUNT_DIR: ${MOUNT_DIR}
-      UI_HEADER: "{{info.name}} Packaged Runbooks"
+      UI_HEADER: "Creators Dashboard Packaged Runbooks"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${MOUNT_DIR}:/execution 
@@ -44,11 +44,11 @@ services:
     container_name: runbook_spa
     restart: no
     ports:
-      - "127.0.0.1:{{info.base_port + 1}}:80"
+      - "127.0.0.1:9091:80"
     environment:
       API_HOST: runbook-api
-      API_PORT: {{info.base_port + 0}}
-      IDP_LOGIN_URI: ${IDP_LOGIN_URI:-http://localhost:{{info.base_port + 1}}/login}
+      API_PORT: 9090
+      IDP_LOGIN_URI: ${IDP_LOGIN_URI:-http://localhost:9091/login}
     depends_on:
       runbook-api:
         condition: service_started
@@ -83,19 +83,19 @@ services:
   # Mongo Database Configuration Utilities
   ##################################
   mongodb_api:
-    image: {{org.docker_host}}/{{org.docker_org}}/{{info.slug}}_mongodb_api:latest
+    image: ghcr.io/agile-crafts-people/impact_mongodb_api:latest
     restart: no
     ports:
-      - "127.0.0.1:{{info.base_port + 2}}:{{info.base_port + 2}}"
+      - "127.0.0.1:9092:9092"
     environment:
       MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
       MONGODB_REQUIRE_TLS: False
-      MONGO_DB_NAME: {{info.db_name}}
+      MONGO_DB_NAME: impact
       AUTO_PROCESS: True
       LOAD_TEST_DATA: True
-      API_PORT: {{info.base_port + 2}}
-      SPA_PORT: {{info.base_port + 3}}
-      UI_HEADER: "{{info.name}} MongoDB Configurations"
+      API_PORT: 9092
+      SPA_PORT: 9093
+      UI_HEADER: "Creators Dashboard MongoDB Configurations"
     depends_on:
       mongodb:
         condition: service_healthy
@@ -109,11 +109,11 @@ services:
     image: ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest
     restart: no
     ports:
-      - "127.0.0.1:{{info.base_port + 3}}:{{info.base_port + 3}}"
+      - "127.0.0.1:9093:9093"
     environment:
       API_HOST: mongodb_api
-      API_PORT: {{info.base_port + 2}}
-      SPA_PORT: {{info.base_port + 3}}
+      API_PORT: 9092
+      SPA_PORT: 9093
     depends_on:
       mongodb_api:
         condition: service_started
@@ -127,19 +127,19 @@ services:
   # Sample Microservice 
   ##################################
   sample_api:
-    image: {{org.docker_host}}/{{org.docker_org}}/{{info.slug}}_sample_api:latest
+    image: ghcr.io/agile-crafts-people/impact_sample_api:latest
     restart: no
     ports:
-      - "127.0.0.1:{{info.base_port + 6}}:{{info.base_port + 6}}"
+      - "127.0.0.1:9096:9096"
     environment:
       MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
       MONGODB_REQUIRE_TLS: False
-      MONGO_DB_NAME: {{info.db_name}}
+      MONGO_DB_NAME: impact
       ENABLE_LOGIN: "true"
       LOGGING_LEVEL: "INFO"
       JWT_SECRET: ${JWT_SECRET}
-      SAMPLE_API_PORT: {{info.base_port + 6}}
-      SAMPLE_SPA_PORT: {{info.base_port + 7}}
+      SAMPLE_API_PORT: 9096
+      SAMPLE_SPA_PORT: 9097
     depends_on:
       mongodb_api:
         condition: service_started
@@ -149,14 +149,14 @@ services:
       - sample_api
 
   sample_spa:
-    image: {{org.docker_host}}/{{org.docker_org}}/{{info.slug}}_sample_spa:latest
+    image: ghcr.io/agile-crafts-people/impact_sample_spa:latest
     restart: no
     ports:
-      - "127.0.0.1:{{info.base_port + 7}}:80"
+      - "127.0.0.1:9097:80"
     environment:
       API_HOST: sample_api
-      API_PORT: {{info.base_port + 6}}
-      SPA_PORT: {{info.base_port + 7}}
+      API_PORT: 9096
+      SPA_PORT: 9097
     depends_on:
       sample_api:
         condition: service_started

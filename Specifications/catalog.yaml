@@ -1,11 +1,27 @@
+$schema: "https://github.com/agile-learning-institute/stage0/blob/main/Schemas/catalog.schema.yaml"
+$id: "https://github.com/agile-learning-institute/mentorhub/blob/main/Specifications/catalog.yaml"
+title: Data Dictionary Catalog Specification for Mentor Hub
+
 data_dictionaries:
   - name: Identity
-    description: The IdP Identity of a person who is a user of the system. 
+    description: The Identity of a person who is a user of the CreatorDashboard system. 
   - name: Profile
-    description: User Preferences associated with one **Identity**.
-  - name: Control
-    description: A sample Control (CRUD) collection
-  - name: Create
-    description: A sample Create (Write Once, Read Many) collection
-  - name: Consume
-    description: A sample Consume (Read Only) collection
+    description: User Profile associated with one or more **Users**, and optionally with an **Identity**.
+  - name: Platform
+    description: A social media platform which hosts **Users** and **Posts**.
+  - name: User
+    description: A User of a social media platform. Some **Users** are **Creators**.
+  - name: Dashboard
+    description: A Dashboard Configuration for a **Profile**
+  - name: Post
+    description: The content published by a **Creator** on a **Platform**. Post types can be Video, Image, or Text.
+  - name: Comment
+    description: A comment, created by a **User**, on a **Post**. A Comment can have **Comments**
+  - name: Classification
+    description: A classification of a **Post** or **Comment**.
+  - name: TestRun
+    description: A LLM Model/Prompt test run - generates **Grades** from **TestData**
+  - name: TestData
+    description: A collection of data used to test a **TestRun**.
+  - name: Grade
+    description: A LLM Model/Prompt test run - generates **Grades** from **TestData**

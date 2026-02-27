@@ -1,63 +1,238 @@
-# Umbrella Project Template
+# Agile Crafts People Creators Dashboard
 
-## Quick Start
-This is a template to create the Umbrella Repo for your system. First, create a GitHub organization to host the system. Then in that organization create a new repo using this template. Name your repo with a short one-word product name slug. To avoid complications, make the repo public, and both the organization name and the slug should be all lower case letters. Clone your new repo down to your computer. We suggest cloning it into a ``source`` folder (i.e. ~/source), this is a poly-repo solution, and many repo's will be cloned to this location. 
+## Stage0 Demo Quickstart
+Use the instructions below to 
+- Familiarize yourself with project [Standards](#familiarize-yourself-with-standards)
+- Update your [product Specifications](#update-your-specifications) 
+- [Run an AI Task](#use-ai-task-to-propagate-changes) to propagate changes.
+- Install the [Developer CLI](#install-the-developer-cli) and prerequisites
+- [Launch](#launch-your-product) 🚀 your product!
 
-Now, update the template [.stage0_template/Specifications/product.yaml](./.stage0_template/Specifications/product.yaml) to reflect your use case. See below for pointers on what values to use.
+--- 
+
+### Familiarize yourself with standards. 
+- Review [Architecture Principles](./DeveloperEdition/standards/ArchitecturePrinciples.md) to understand the architecture supported by the current templates.
+- Review the various [Coding Standards](./DeveloperEdition/standards/) implemented in the API, UI, DB, and SRE domains.
+- Review the [Specifications](./Specifications/) to understand the starting point.
+
+Note: Now is the time for your team to review and approve or modify these standards. The tooling will work with alternative technologies or architectures. Any updates will likely require template refactors, but the effort to do so is minimal for most changes.
+
+---
+
+### Update your Specifications
+Design specifications are documented as ``yaml`` files in the Specifications folder. The three key files used by the templates are:
+- [product.yaml](./Specifications/product.yaml) that you created when you merged the template.
+- [catalog.yaml](./Specifications/catalog.yaml) that will define the top-level data domains within your system. 
+- [architecture.yaml](./Specifications/architecture.yaml) that describes the micro-service domains of your system. 
+
+Start by updating your [catalog.yaml](./Specifications/catalog.yaml) to list the data domains of your system. These will align with MongoDB Collections in the generated code.This is an example used by the Creators Dashboard testing project.
 ```yaml
-info:
-  name: <Your Product Name>
-  description: <Your Product Description>
-  slug: <slug> - That short one-word product name slug.
-  developer_cli: <cli> - A very short 2-character CLI command for your product
-  db_name: <db_name> Any database name
-  base_port: 8383 - A dozen or so port numbers will be assigned starting with this number. 
+data_dictionaries:
+  - name: Identity
+    description: The Identity of a person who is a user of the CreatorDashboard system. 
+  - name: Profile
+    description: User Profile associated with one or more **Users**, and optionally with an **Identity**.
+  - name: Platform
+    description: A social media platform which hosts **Users** and **Posts**.
+  - name: User
+    description: A User of a social media platform. Some **Users** are **Creators**.
+  - name: Dashboard
+    description: A Dashboard Configuration for a **Profile**
+  - name: Post
+    description: The content published by a **Creator** on a **Platform**. Post types can be Video, Image, or Text.
+  - name: Comment
+    description: A comment, created by a **User**, on a **Post**. A Comment can have **Comments**
+  - name: Sentiment
+    description: A sentiment of a **Post** or **Comment**.
+  - name: Classification
+    description: A classification of a **Post** or **Comment**.
+  - name: TestRun
+    description: A LLM Model/Prompt test run - generates **Grades** from **TestData**
+  - name: TestData
+    description: A collection of data used to test a **TestRun**.
+  - name: Grade
+    description: A LLM Model/Prompt test run - generates **Grades** from **TestData**```
 
-organization:
-  name: <Organization Name>
-  email: <info@your-organization.com>
-  founded: 2024
-  slug: <Github Org Name> i.e. agile-learning-institute
-  git_host: https://github.com
-  git_org: <same as org slug>
-  docker_host: ghcr.io
-  docker_org: <same as org slug>
+Now update your architecture.yaml file to describe the micro-services in your system. The current file contains a sample microservice 
+```yaml
+    - name: sample
+      description: Sample Service Domain - use for each User Journey domain.
+      data_domains:
+        controls:
+          - Control 
+        creates:
+          - Create 
+        consumes:
+          - Consume
+      repos:
+        - name: sample_api
+          description: Flask API with MongoDB Database
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 8389
+        - name: sample_spa
+          description: Vue Vuetify SPA
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 8390
+```
+Replace this service with your own. This is an example of the Creator Dashboard testing data, 
+note that all of the data_domains listed are present in the catalog.yaml file. 
+This is critical and misalignment will result in non-functional code.
+```yaml
+    - name: profile
+      description: User Profile Management.
+      data_domains:
+        controls:
+          - Profile
+          - Platform
+          - User
+        creates: []
+        consumes:
+          - Identity
+      repos:
+        - name: profile_api
+          description: Consumes Identity Service Bus events and manages Profile data.
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9096
+        - name: profile_spa
+          description: Profile API Status Single Page Web Application
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9097
+    - name: evaluator
+      description: Sentiment Analysis Prompt and Model evaluation tool
+      data_domains:
+        controls:
+          - TestRun
+          - TestData
+        creates:
+          - Grade
+        consumes:
+          - Profile
+      repos:
+        - name: evaluator_api
+          description: Evaluator API Server
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9098
+        - name: evaluator_spa
+          description: Evaluator Single Page Web Application - setup/schedule/run/view test results
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9099
+    - name: dashboard
+      description: YouTube Ratio Reporting - Product MVP.
+      data_domains:
+        controls:
+          - Dashboard
+        creates:
+          - Post
+          - Comment
+        consumes:
+          - Classification
+          - Profile
+      repos:
+        - name: dashboard_api
+          description: Dashboard API Server
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9100
+        - name: dashboard_spa
+          description: Dashboard Single Page Web Application
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9101
+    - name: classifier
+      description: Comment Sentiment Analysis and Classifier 
+      data_domains:
+        controls:
+          - sentiment
+          - ratios
+        creates: []
+        consumes:
+          - post
+          - comment
+          - user
+      repos:
+        - name: classifier_api
+          description: Sentiment Analysis Classifier API Server
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9102
+        - name: classifier_spa
+          description: Sentiment Analysis Classifier Single Page Web Application
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9103
 ```
 
-Once you have saved those changes use the ``make merge`` command as shown below, and then re-load the README to continue. You will need to have the ``make`` utility and [Docker Desktop](https://www.docker.com/get-started/) installed to merge this template. 
+### Use AI Task to propagate changes. 
 
+Now is a good time to make a commit! 
+Copy - paste this prompt to your AI Code Assistant:
+
+---
+
+Review this [README](./Tasks/README.md) for context and execute [this task](./Tasks/AS_NEEDED.R100.after_specs_update.md).
+
+---
+
+### Install the Developer CLI
+Now is a good time for a commit! 
+Install the developer CLI and all of the developer pre-req's so that the Launch scripts can run successfully. 
+Follow all of the instructions in [CONTRIBUTING.md](./CONTRIBUTING.md)
 ```sh
-## Merge your specifications with the template
-make merge .stage0_template/Specifications
+make install
+cp <your token> ~/.impact/GITHUB_TOKEN
+make update
+source ~/.zshrc
 ```
 
-## Contributing
-See [Template Guide](https://github.com/agile-learning-institute/stage0_runbook_merge/blob/main/TEMPLATE_GUIDE.md) for information about stage0 merge templates. See the [Processing Instructions](./.stage0_template/process.yaml) for details about this template, and [Test Specifications](./.stage0_template/Specifications/) for sample context data required.
-
-Template Commands
+### Launch your product.
+Use these commands to generate, clone, merge, and build all of your repo's and then start the containers in your local dev environment.
 ```sh
-## Test the Template using test_expected output
-## Creates ~/tmp folders 
-make test
-## Successful output looks like
-...
-Checking output...
-Only in /Users/you/tmp/testRepo: .git
-Only in /Users/you/tmp/testRepo/configurator: .DS_Store
-Done.
-
-## Look at one file diff from testing
-make diff README.md
-
-## Copy a generated file to the test_expected folder
-make take somefile.json
-
-## Clean up temp files from testing
-## Removes tmp folders
-make clean
-
-## Process this merge template using the provided context path
-## NOTE: Destructive action, will remove .stage0_template 
-## Context path typically ends with ``.Specifications``
-make merge {context path}
+make launch-all
+im up all
 ```
+
+The ``launch-all`` command may take a while to run, more than 10 minutes. After using the ``im up all`` command visit the [welcome page](localhost:8080) in your browser.
+
+Now is a good time to add all of the generated repo's to your IDE workspace (And delete this part of the README). At some point the SRE's may want to remove some of the scripts in the Makefile. Commands like ``delete-all``, ``clean-clone-build``, and ``launch-all`` should have a limited lifetime in the repo. Keep them around until you are sure that the architecture has settled and no more code generation is needed. 
+
+
+---
+
+## Big Idea
+A platform to help Creators understand the impact of their work.
+
+## Development Team 
+- 
+- 
+
+## Design Specifications
+- [Product Description](./Specifications/product.yaml) 
+- [Stakeholders](./Specifications/stakeholders.yaml)
+- [Product Roadmap](./Specifications/roadmap.yaml)
+- [Data Catalog](./Specifications/catalog.yaml)
+- [Architecture Diagram](./Specifications/architecture_diagram.md)
+- [Architecture Data](./Specifications/architecture.yaml)
+
+## Contributing Guides
+- [Developer Onboarding](./CONTRIBUTING.md) On-Boarding Process and CLI install
+- [Architecture Principles](./DeveloperEdition/standards/ArchitecturePrinciples.md)
+- [Data Standards](./DeveloperEdition/standards/data_standards.md)
+- [API Standards](./DeveloperEdition/standards/api_standards.md)
+- [UI Standards](./DeveloperEdition/standards/spa_standards.md)
+- [SRE Standards](./DeveloperEdition/standards/sre_standards.md)
