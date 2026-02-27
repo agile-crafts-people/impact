@@ -1,6 +1,6 @@
 # R100 – Update files after architecture.yaml changes
 
-**Status**: Pending 
+**Status**: Shipped 
 **Task Type**: Updates
 **Run Mode**: Run as needed
 
@@ -61,3 +61,13 @@ Before marking this task as completed:
 ## Implementation notes (to be updated by the agent)
 
 **Summary of changes**
+
+- **docker-compose.yaml**: Added four new microservice domains from architecture.yaml (profile, evaluator, dashboard, classifier). Each domain has:
+  - `{domain}-api` profile: API service only (e.g. `profile-api` → profile_api)
+  - `{domain}` profile: API + SPA (e.g. `profile` → profile_api + profile_spa)
+  - Services use architecture ports (8186–8193)
+  - All new services depend on mongodb and are in the `all` profile
+  - Extended mongodb profiles to include profile, evaluator, dashboard, classifier
+- **index.html**: Added links for profile (8187), evaluator (8189), dashboard (8191), classifier (8193) SPAs at top of list; added API Explorer links at `/docs/explorer.html` for each backing API. Schema and runbook links unchanged.
+
+**Testing results**: `make container` completed successfully.

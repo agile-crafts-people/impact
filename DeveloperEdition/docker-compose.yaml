@@ -78,6 +78,14 @@ services:
       - mongodb
       - sample
       - sample_api
+      - profile
+      - profile-api
+      - evaluator
+      - evaluator-api
+      - dashboard
+      - dashboard-api
+      - classifier
+      - classifier-api
 
   ##################################
   # Mongo Database Configuration Utilities
@@ -163,3 +171,163 @@ services:
     profiles:
       - all
       - sample
+
+  ##################################
+  # Profile Domain
+  ##################################
+  profile_api:
+    image: ghcr.io/agile-crafts-people/impact_profile_api:latest
+    container_name: profile_api
+    restart: no
+    ports:
+      - "127.0.0.1:8186:8186"
+    environment:
+      MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
+      MONGODB_REQUIRE_TLS: "false"
+      MONGO_DB_NAME: impact
+      ENABLE_LOGIN: "true"
+      LOGGING_LEVEL: "INFO"
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    profiles:
+      - all
+      - profile
+      - profile-api
+
+  profile_spa:
+    image: ghcr.io/agile-crafts-people/impact_profile_spa:latest
+    container_name: profile_spa
+    restart: no
+    ports:
+      - "127.0.0.1:8187:80"
+    environment:
+      API_HOST: profile_api
+      API_PORT: 8186
+    depends_on:
+      profile_api:
+        condition: service_started
+    profiles:
+      - all
+      - profile
+
+  ##################################
+  # Evaluator Domain
+  ##################################
+  evaluator_api:
+    image: ghcr.io/agile-crafts-people/impact_evaluator_api:latest
+    container_name: evaluator_api
+    restart: no
+    ports:
+      - "127.0.0.1:8188:8188"
+    environment:
+      MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
+      MONGODB_REQUIRE_TLS: "false"
+      MONGO_DB_NAME: impact
+      ENABLE_LOGIN: "true"
+      LOGGING_LEVEL: "INFO"
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    profiles:
+      - all
+      - evaluator
+      - evaluator-api
+
+  evaluator_spa:
+    image: ghcr.io/agile-crafts-people/impact_evaluator_spa:latest
+    container_name: evaluator_spa
+    restart: no
+    ports:
+      - "127.0.0.1:8189:80"
+    environment:
+      API_HOST: evaluator_api
+      API_PORT: 8188
+    depends_on:
+      evaluator_api:
+        condition: service_started
+    profiles:
+      - all
+      - evaluator
+
+  ##################################
+  # Dashboard Domain
+  ##################################
+  dashboard_api:
+    image: ghcr.io/agile-crafts-people/impact_dashboard_api:latest
+    container_name: dashboard_api
+    restart: no
+    ports:
+      - "127.0.0.1:8190:8190"
+    environment:
+      MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
+      MONGODB_REQUIRE_TLS: "false"
+      MONGO_DB_NAME: impact
+      ENABLE_LOGIN: "true"
+      LOGGING_LEVEL: "INFO"
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    profiles:
+      - all
+      - dashboard
+      - dashboard-api
+
+  dashboard_spa:
+    image: ghcr.io/agile-crafts-people/impact_dashboard_spa:latest
+    container_name: dashboard_spa
+    restart: no
+    ports:
+      - "127.0.0.1:8191:80"
+    environment:
+      API_HOST: dashboard_api
+      API_PORT: 8190
+    depends_on:
+      dashboard_api:
+        condition: service_started
+    profiles:
+      - all
+      - dashboard
+
+  ##################################
+  # Classifier Domain
+  ##################################
+  classifier_api:
+    image: ghcr.io/agile-crafts-people/impact_classifier_api:latest
+    container_name: classifier_api
+    restart: no
+    ports:
+      - "127.0.0.1:8192:8192"
+    environment:
+      MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
+      MONGODB_REQUIRE_TLS: "false"
+      MONGO_DB_NAME: impact
+      ENABLE_LOGIN: "true"
+      LOGGING_LEVEL: "INFO"
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    profiles:
+      - all
+      - classifier
+      - classifier-api
+
+  classifier_spa:
+    image: ghcr.io/agile-crafts-people/impact_classifier_spa:latest
+    container_name: classifier_spa
+    restart: no
+    ports:
+      - "127.0.0.1:8193:80"
+    environment:
+      API_HOST: classifier_api
+      API_PORT: 8192
+    depends_on:
+      classifier_api:
+        condition: service_started
+    profiles:
+      - all
+      - classifier
