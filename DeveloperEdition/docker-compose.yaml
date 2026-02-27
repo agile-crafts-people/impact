@@ -11,7 +11,14 @@ services:
       - all
       - runbook
       - mongodb
-      - sample
+      - profile
+      - profile-api
+      - evaluator
+      - evaluator-api
+      - dashboard
+      - dashboard-api
+      - classifier
+      - classifier-api
 
   ##################################
   # Custom Runbook API Service (Deployed Profile)
@@ -76,8 +83,6 @@ services:
     profiles:
       - all
       - mongodb
-      - sample
-      - sample_api
       - profile
       - profile-api
       - evaluator
@@ -110,8 +115,6 @@ services:
     profiles:
       - all
       - mongodb
-      - sample
-      - sample_api
 
   mongodb_spa:
     image: ghcr.io/agile-learning-institute/mongodb_configurator_spa:latest
@@ -128,49 +131,6 @@ services:
     profiles:
       - all
       - mongodb
-      - sample
-      - sample_api
-
-  ##################################
-  # Sample Microservice 
-  ##################################
-  sample_api:
-    image: ghcr.io/agile-crafts-people/impact_sample_api:latest
-    restart: no
-    ports:
-      - "127.0.0.1:9096:9096"
-    environment:
-      MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
-      MONGODB_REQUIRE_TLS: False
-      MONGO_DB_NAME: impact
-      ENABLE_LOGIN: "true"
-      LOGGING_LEVEL: "INFO"
-      JWT_SECRET: ${JWT_SECRET}
-      SAMPLE_API_PORT: 9096
-      SAMPLE_SPA_PORT: 9097
-    depends_on:
-      mongodb_api:
-        condition: service_started
-    profiles:
-      - all
-      - sample
-      - sample_api
-
-  sample_spa:
-    image: ghcr.io/agile-crafts-people/impact_sample_spa:latest
-    restart: no
-    ports:
-      - "127.0.0.1:9097:80"
-    environment:
-      API_HOST: sample_api
-      API_PORT: 9096
-      SPA_PORT: 9097
-    depends_on:
-      sample_api:
-        condition: service_started
-    profiles:
-      - all
-      - sample
 
   ##################################
   # Profile Domain
@@ -180,7 +140,7 @@ services:
     container_name: profile_api
     restart: no
     ports:
-      - "127.0.0.1:8186:8186"
+      - "127.0.0.1:9096:9096"
     environment:
       MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
       MONGODB_REQUIRE_TLS: "false"
@@ -188,6 +148,7 @@ services:
       ENABLE_LOGIN: "true"
       LOGGING_LEVEL: "INFO"
       JWT_SECRET: ${JWT_SECRET}
+      API_PORT: 9096
     depends_on:
       mongodb:
         condition: service_healthy
@@ -201,10 +162,11 @@ services:
     container_name: profile_spa
     restart: no
     ports:
-      - "127.0.0.1:8187:80"
+      - "127.0.0.1:9097:80"
     environment:
       API_HOST: profile_api
-      API_PORT: 8186
+      API_PORT: 9096
+      IDP_LOGIN_URI: ${IDP_LOGIN_URI:-http://localhost:9097/login}
     depends_on:
       profile_api:
         condition: service_started
@@ -220,7 +182,7 @@ services:
     container_name: evaluator_api
     restart: no
     ports:
-      - "127.0.0.1:8188:8188"
+      - "127.0.0.1:9098:9098"
     environment:
       MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
       MONGODB_REQUIRE_TLS: "false"
@@ -228,6 +190,7 @@ services:
       ENABLE_LOGIN: "true"
       LOGGING_LEVEL: "INFO"
       JWT_SECRET: ${JWT_SECRET}
+      API_PORT: 9098
     depends_on:
       mongodb:
         condition: service_healthy
@@ -241,10 +204,11 @@ services:
     container_name: evaluator_spa
     restart: no
     ports:
-      - "127.0.0.1:8189:80"
+      - "127.0.0.1:9099:80"
     environment:
       API_HOST: evaluator_api
-      API_PORT: 8188
+      API_PORT: 9098
+      IDP_LOGIN_URI: ${IDP_LOGIN_URI:-http://localhost:9099/login}
     depends_on:
       evaluator_api:
         condition: service_started
@@ -260,7 +224,7 @@ services:
     container_name: dashboard_api
     restart: no
     ports:
-      - "127.0.0.1:8190:8190"
+      - "127.0.0.1:9100:9100"
     environment:
       MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
       MONGODB_REQUIRE_TLS: "false"
@@ -268,6 +232,7 @@ services:
       ENABLE_LOGIN: "true"
       LOGGING_LEVEL: "INFO"
       JWT_SECRET: ${JWT_SECRET}
+      API_PORT: 9100
     depends_on:
       mongodb:
         condition: service_healthy
@@ -281,10 +246,11 @@ services:
     container_name: dashboard_spa
     restart: no
     ports:
-      - "127.0.0.1:8191:80"
+      - "127.0.0.1:9101:80"
     environment:
       API_HOST: dashboard_api
-      API_PORT: 8190
+      API_PORT: 9100
+      IDP_LOGIN_URI: ${IDP_LOGIN_URI:-http://localhost:9101/login}
     depends_on:
       dashboard_api:
         condition: service_started
@@ -300,7 +266,7 @@ services:
     container_name: classifier_api
     restart: no
     ports:
-      - "127.0.0.1:8192:8192"
+      - "127.0.0.1:9102:9102"
     environment:
       MONGO_CONNECTION_STRING: mongodb://mongodb:27017/
       MONGODB_REQUIRE_TLS: "false"
@@ -308,6 +274,7 @@ services:
       ENABLE_LOGIN: "true"
       LOGGING_LEVEL: "INFO"
       JWT_SECRET: ${JWT_SECRET}
+      API_PORT: 9102
     depends_on:
       mongodb:
         condition: service_healthy
@@ -321,10 +288,11 @@ services:
     container_name: classifier_spa
     restart: no
     ports:
-      - "127.0.0.1:8193:80"
+      - "127.0.0.1:9103:80"
     environment:
       API_HOST: classifier_api
-      API_PORT: 8192
+      API_PORT: 9102
+      IDP_LOGIN_URI: ${IDP_LOGIN_URI:-http://localhost:9103/login}
     depends_on:
       classifier_api:
         condition: service_started

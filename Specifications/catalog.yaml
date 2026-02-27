@@ -1,7 +1,3 @@
-$schema: "https://github.com/agile-learning-institute/stage0/blob/main/Schemas/catalog.schema.yaml"
-$id: "https://github.com/agile-learning-institute/mentorhub/blob/main/Specifications/catalog.yaml"
-title: Data Dictionary Catalog Specification for Mentor Hub
-
 data_dictionaries:
   - name: Identity
     description: The Identity of a person who is a user of the CreatorDashboard system. 
@@ -17,6 +13,8 @@ data_dictionaries:
     description: The content published by a **Creator** on a **Platform**. Post types can be Video, Image, or Text.
   - name: Comment
     description: A comment, created by a **User**, on a **Post**. A Comment can have **Comments**
+  - name: Sentiment
+    description: A sentiment of a **Post** or **Comment**.
   - name: Classification
     description: A classification of a **Post** or **Comment**.
   - name: TestRun

@@ -1,7 +1,3 @@
-$schema: "https://github.com/agile-learning-institute/stage0/blob/main/Schemas/architecture.schema.yaml"
-$id: "https://github.com/agile-learning-institute/mentorhub/blob/main/Specifications/architecture.yaml"
-title: Architecture Specification for Mentor Hub
-
 architecture:
   organization: Agile Learning Institute
   product: Mentor Hub
@@ -19,12 +15,12 @@ architecture:
           template: agile-learning-institute/stage0_template_runbook_api
           publish: make
           type: api
-          port: 8383
+          port: 9090
         - name: runbook_spa
           description: Runbook Automation Single Page Web Application (utility container, not a real repository)
           template: N/A
           type: spa_ref
-          port: 8384
+          port: 9091
     - name: schema
       description: MongoDB Database Configuration and Management.
       repos:
@@ -33,12 +29,12 @@ architecture:
           template: agile-learning-institute/stage0_template_configurator_api
           publish: make
           type: api
-          port: 8385
+          port: 9092
         - name: configurator_spa
           description: MongoDB Configurator SPA (utility container, not a real repository)
           template: N/A
           type: spa_ref 
-          port: 8386
+          port: 9093
     - name: common_code
       description: Shared code used across multiple API or SPA code bases are published to private dependency management libraries (NPM /PYPI).
       repos:
@@ -47,13 +43,13 @@ architecture:
           template: agile-learning-institute/stage0_template_py_utils
           publish: pipenv
           type: api
-          port: 8387
+          port: 9094
         - name: spa_utils
           description: Vue NPM SPA Utility Library
           template: agile-learning-institute/stage0_template_vue_utils
           publish: npm
           type: spa
-          port: 8388
+          port: 9095
     - name: profile
       description: User Profile Management.
       data_domains:
@@ -67,12 +63,16 @@ architecture:
       repos:
         - name: profile_api
           description: Consumes Identity Service Bus events and manages Profile data.
-          template: agile-crafts-people/template_flask_mongo
-          port: 8186
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9096
         - name: profile_spa
           description: Profile API Status Single Page Web Application
-          template: agile-crafts-people/template_vue_vuetify
-          port: 8187
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9097
     - name: evaluator
       description: Sentiment Analysis Prompt and Model evaluation tool
       data_domains:
@@ -86,12 +86,16 @@ architecture:
       repos:
         - name: evaluator_api
           description: Evaluator API Server
-          template: agile-crafts-people/template_flask_mongo
-          port: 8188
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9098
         - name: evaluator_spa
           description: Evaluator Single Page Web Application - setup/schedule/run/view test results
-          template: agile-crafts-people/template_vue_vuetify
-          port: 8189
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9099
     - name: dashboard
       description: YouTube Ratio Reporting - Product MVP.
       data_domains:
@@ -106,12 +110,16 @@ architecture:
       repos:
         - name: dashboard_api
           description: Dashboard API Server
-          template: agile-crafts-people/template_flask_mongo
-          port: 8190
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9100
         - name: dashboard_spa
           description: Dashboard Single Page Web Application
-          template: agile-crafts-people/template_vue_vuetify
-          port: 8191
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9101
     - name: classifier
       description: Comment Sentiment Analysis and Classifier 
       data_domains:
@@ -126,9 +134,13 @@ architecture:
       repos:
         - name: classifier_api
           description: Sentiment Analysis Classifier API Server
-          template: agile-crafts-people/template_flask_mongo
-          port: 8192
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9102
         - name: classifier_spa
           description: Sentiment Analysis Classifier Single Page Web Application
-          template: agile-crafts-people/template_vue_vuetify
-          port: 8193
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9103
