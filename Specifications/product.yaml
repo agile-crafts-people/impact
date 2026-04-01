@@ -1,0 +1,17 @@
+info:
+  name: Creators Dashboard
+  description: A platform to help Creators understand the impact of their work.
+  slug: impact
+  developer_cli: im
+  db_name: impact
+  base_port: 9090
+
+organization:
+  name: Agile Crafts People
+  email: info@agilecrafts.com
+  founded: 2024
+  slug: agile-crafts-people
+  git_host: https://github.com
+  git_org: agile-crafts-people
+  docker_host: ghcr.io
+  docker_org: agile-crafts-people

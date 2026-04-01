@@ -14,16 +14,16 @@
 - Runbook Automation: [stage0 runbooks](https://github.com/agile-learning-institute/stage0_runbooks)
 
 ## Developer Experience
-The ``{{ info.developer_cli }}`` Developer Edition CLI is how SRE provides a strong developer experience. It manages developer environment values (keys, secrets, JWT material for local tooling, etc.) and wraps the services configured in this [docker-compose](../docker-compose.yaml) file. Developers can run the full stack on local hardware without using `docker compose` directly for normal workflows.
+The ``im`` Developer Edition CLI is how SRE provides a strong developer experience. It manages developer environment values (keys, secrets, JWT material for local tooling, etc.) and wraps the services configured in this [docker-compose](../docker-compose.yaml) file. Developers can run the full stack on local hardware without using `docker compose` directly for normal workflows.
 
 **Local authentication (Developer Edition):** APIs do **not** expose credential-issuing routes on the product surface. Developer Edition compose uses a **stable `JWT_SECRET`** so SPAs and backends agree across restarts. The umbrella **welcome page** (`index.html`) issues persona links: it opens each SPA with URL-hash bootstrap parameters (`access_token`, `expires_at`, `roles`). SPAs call **`bootstrapAuthFromUrl`** from shared SPA utilities before boot so `localStorage` matches production-style bearer usage. **`IDP_LOGIN_URI`** / **`VITE_IDP_LOGIN_URI`** default to the welcome page origin (for example `http://127.0.0.1:8080/`) so unauthenticated guards, `401` handling, and logout send users back to that page—not to a per-SPA `/login` route.
 
 **Verifying the stack after compose or image changes** (from the product checkout root, for example the repo that contains `DeveloperEdition/`):
 
 ```sh
-cd {{ info.slug }}
+cd impact
 make update
-{{ info.developer_cli }} up all
+im up all
 ```
 
 ## Production alignment
@@ -31,7 +31,7 @@ make update
 **API gateway and commercial IdP:** In production, traffic is intended to sit behind an **API gateway** (or edge proxy) with **TLS**, routing to SPA static assets and API services. **Authentication** uses a **commercial IdP** (OAuth2/OIDC). Access tokens are issued by the IdP (or a BFF); applications do not use APIs as a substitute IdP. APIs validate JWTs (shared secret or JWKS) with the same claim expectations as in Developer Edition. SPAs redirect to the real IdP login/authorize entry via the configured login base URL—preserving a single auth story from the local welcome page through to production IdP.
 
 ## SRE Automation 
-SRE Automation is done using the [stage0 runbooks](https://github.com/agile-learning-institute/stage0_runbooks) system. Our custom runbook is [runbook_api]({{ org.git_host }}/{{ org.git_org }}/{{ info.slug }}_runbook_api) which is available for use with ``{{ info.developer_cli }} up runbook`` and accessing http://localhost and following the runbooks link. 
+SRE Automation is done using the [stage0 runbooks](https://github.com/agile-learning-institute/stage0_runbooks) system. Our custom runbook is [runbook_api](https://github.com/agile-crafts-people/impact_runbook_api) which is available for use with ``im up runbook`` and accessing http://localhost and following the runbooks link. 
 
 ## Continuous Integration
 The developer workflow follows the feature branch pattern. A developer creates a branch to work on a feature, and submit a pull request (PR) when the feature is ready to be deployed. When a PR is approved by a reviewer and merged to the main branch, the CI automation will build and push a new container with a :latest tag to the system's container registry. These containers are deployed to a cloud DEV environment, and available for developers to use for local development.
@@ -69,7 +69,7 @@ Protected routes and the API client redirect the browser to the configured **log
 This keeps one redirect contract from local through production without per-SPA `/login` pages. 
 
 ## Service Configurability
-All API's are configured using a shared [Config singleton]({{ org.git_host }}/{{ org.git_org }}/{{ info.slug }}_api_utils/blob/main/py_utils/config/config.py). The Config object manages all configuration items for all API and SPA code. Configuration values are read from the first of: Config File, Environment Var, Default Value. The configuration items and non-secret values are exposed through the Config API endpoint, which is used by the SPA to get runtime configuration values.
+All API's are configured using a shared [Config singleton](https://github.com/agile-crafts-people/impact_api_utils/blob/main/py_utils/config/config.py). The Config object manages all configuration items for all API and SPA code. Configuration values are read from the first of: Config File, Environment Var, Default Value. The configuration items and non-secret values are exposed through the Config API endpoint, which is used by the SPA to get runtime configuration values.
 
 ## Service Observability
 All API's expose a /metrics endpoint which exposes a text-based exposition format that Prometheus understands. This endpoint exposes detailed, real-time metrics about the API's performance, latency, error rates, and internal health.

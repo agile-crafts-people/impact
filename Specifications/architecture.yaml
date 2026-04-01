@@ -1,0 +1,135 @@
+architecture:
+  organization: Agile Learning Institute
+  product: Mentor Hub
+  environments:
+    - name: local
+    - name: development
+    - name: staging
+    - name: production
+  domains:
+    - name: schema
+      description: MongoDB Database Configuration and Management.
+      repos:
+        - name: mongodb_api
+          description: MongoDB Configurator API Server
+          template: agile-learning-institute/stage0_template_configurator_api
+          publish: make
+          type: api
+          port: 9090
+        - name: configurator_spa
+          description: MongoDB Configurator SPA (utility container, not a real repository)
+          type: spa_ref 
+          port: 9091
+    - name: common_code
+      description: Shared code used across multiple API or SPA code bases are published to private dependency management libraries (NPM /PYPI).
+      repos:
+        - name: api_utils
+          description: Python PyPI API Utility Library
+          template: agile-learning-institute/stage0_template_py_utils
+          publish: pipenv
+          type: api
+          port: 9092
+        - name: spa_utils
+          description: Vue NPM SPA Utility Library
+          template: agile-learning-institute/stage0_template_vue_utils
+          publish: npm
+          type: spa
+          port: 9093
+    - name: administrator
+      description: Administrator User Journey.
+      is_journey: true
+      data_domains:
+        controls:
+          - Profile
+          - Platform
+          - User
+        creates: []
+        consumes:
+          - Identity
+      repos:
+        - name: administrator_api
+          description: Consumes Identity Service Bus events and manages Profile data.
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9094
+        - name: administrator_spa
+          description: Profile API Status Single Page Web Application
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9095
+    - name: evaluator
+      description: Sentiment Analysis Prompt and Model evaluation tool
+      is_journey: true
+      data_domains:
+        controls:
+          - TestRun
+          - TestData
+        creates:
+          - Grade
+        consumes:
+          - Profile
+      repos:
+        - name: evaluator_api
+          description: Evaluator API Server
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9096
+        - name: evaluator_spa
+          description: Evaluator Single Page Web Application - setup/schedule/run/view test results
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9097
+    - name: creator
+      description: The Creator Dashboard User Journey.
+      is_journey: true
+      data_domains:
+        controls:
+          - Dashboard
+        creates:
+          - Post
+          - Comment
+        consumes:
+          - Classification
+          - Profile
+      repos:
+        - name: creator_api
+          description: Creator Dashboard API Server
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9098
+        - name: creator_spa
+          description: Dashboard Single Page Web Application
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9099
+    - name: classifier
+      description: Comment Sentiment Analysis and Classifier 
+      is_journey: true
+      data_domains:
+        controls:
+          - Sentiment
+          - Ratio
+        creates: []
+        consumes:
+          - Post
+          - Comment
+          - User
+      repos:
+        - name: classifier_api
+          description: Sentiment Analysis Classifier API Server
+          template: agile-learning-institute/stage0_template_flask_mongo
+          publish: pipenv
+          type: api
+          port: 9100
+        - name: classifier_spa
+          description: Sentiment Analysis Classifier Single Page Web Application
+          template: agile-learning-institute/stage0_template_vue_vuetify
+          publish: npm
+          type: spa
+          port: 9101

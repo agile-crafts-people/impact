@@ -3,11 +3,11 @@
 export COMMAND="$1"
 export NEW_PROFILE="$2"
 export INSTALL_PATH=$(dirname "$0")
-export GITHUB_TOKEN=$(cat ~/.{{info.slug}}/GITHUB_TOKEN)
+export GITHUB_TOKEN=$(cat ~/.impact/GITHUB_TOKEN)
 # Stable default so welcome-page persona JWTs match API containers (override with JWT_SECRET).
 if [[ -z "${JWT_SECRET:-}" ]]; then
-  if [[ -f "$HOME/.{{info.slug}}/JWT_DEV_SECRET" ]]; then
-    export JWT_SECRET=$(<"$HOME/.{{info.slug}}/JWT_DEV_SECRET")
+  if [[ -f "$HOME/.impact/JWT_DEV_SECRET" ]]; then
+    export JWT_SECRET=$(<"$HOME/.impact/JWT_DEV_SECRET")
   else
     export JWT_SECRET="local-dev-jwt-secret-fixed"
   fi
@@ -19,13 +19,13 @@ fi
 function manual {
 cat <<END
 NAME
-       {{info.developer_cli}} - {{ info.name }} Developers Edition
+       im - Creators Dashboard Developers Edition
 
 SYNOPSIS
-       {{info.developer_cli}} COMMAND
+       im COMMAND
 
 DESCRIPTION
-       {{info.developer_cli}} is a simple utility to run the {{ info.name }} system, or portions 
+       im is a simple utility to run the Creators Dashboard system, or portions 
        of it, in local docker containers. You must have docker desktop 
        installed
 
@@ -54,16 +54,16 @@ COMMANDS
         Pull latest images for the specified profile(s).
 
     clean
-        Delete all {{ info.name }} specific containers, volumes, and images
+        Delete all Creators Dashboard specific containers, volumes, and images
 
     version
-        print the {{ info.name }} Developers Edition version
+        print the Creators Dashboard Developers Edition version
     
     list-profiles
-        List all available profiles related to {{ info.name }} Developers Edition
+        List all available profiles related to Creators Dashboard Developers Edition
 
     list-services
-        List all available services related to {{ info.name }} Developers Edition
+        List all available services related to Creators Dashboard Developers Edition
 
 END
 }
@@ -74,7 +74,7 @@ END
 usage() {
   cat <<END
 
-Usage: {{info.developer_cli}}COMMAND
+Usage: imCOMMAND
 
 Commands:
   up             Launch containers from a profile
@@ -84,8 +84,8 @@ Commands:
   tail           Tail a service log
   prune          Prune all orphaned images and volumes
   pull           Pull latest images for a profile
-  clean          Delete all {{ info.name }} specific containers, volumes, and images
-  version        Print the {{ info.name }} Developers Edition version
+  clean          Delete all Creators Dashboard specific containers, volumes, and images
+  version        Print the Creators Dashboard Developers Edition version
   list-profiles  List all available profiles
   list-services  List all available services
   manual         Show the manual
@@ -150,7 +150,7 @@ function getCurrentProfile {
 ################################################################################
 function downCurrent {
     getCurrentProfile
-    if [[ ${{ "{" }}#CURRENT_PROFILES[@]} -gt 0 ]]; then
+    if [[ ${#CURRENT_PROFILES[@]} -gt 0 ]]; then
         docker_compose_args=("-f" "$INSTALL_PATH/docker-compose.yaml")
         for profile in "${CURRENT_PROFILES[@]}"; do
             docker_compose_args+=("--profile" "$profile")
@@ -168,7 +168,7 @@ function downCurrent {
 ################################################################################
 function upProfile {
     if [[ -z $NEW_PROFILE ]]; then
-        echo "Error: No profile specified. Use '{{info.developer_cli}} up [profile1,profile2,...]'"
+        echo "Error: No profile specified. Use 'im up [profile1,profile2,...]'"
         listProfiles
         return 1
     fi
@@ -199,7 +199,7 @@ function upProfile {
 ################################################################################
 function stopCurrent {
     getCurrentProfile
-    if [[ ${{ "{" }}#CURRENT_PROFILES[@]} -gt 0 ]]; then
+    if [[ ${#CURRENT_PROFILES[@]} -gt 0 ]]; then
         docker_compose_args=("-f" "$INSTALL_PATH/docker-compose.yaml")
         for profile in "${CURRENT_PROFILES[@]}"; do
             docker_compose_args+=("--profile" "$profile")
@@ -215,14 +215,14 @@ function stopCurrent {
 ################################################################################
 function startCurrent {
     getCurrentProfile
-    if [[ ${{ "{" }}#CURRENT_PROFILES[@]} -gt 0 ]]; then
+    if [[ ${#CURRENT_PROFILES[@]} -gt 0 ]]; then
         docker_compose_args=("-f" "$INSTALL_PATH/docker-compose.yaml")
         for profile in "${CURRENT_PROFILES[@]}"; do
             docker_compose_args+=("--profile" "$profile")
         done
         docker compose "${docker_compose_args[@]}" start 
     else
-        echo "No profiles found to start. Use '{{info.developer_cli}} up [profile]' first."
+        echo "No profiles found to start. Use 'im up [profile]' first."
     fi
 }
 
@@ -250,7 +250,7 @@ function tailServiceLogs {
 ################################################################################
 function pull {
     if [[ -z $NEW_PROFILE ]]; then
-        echo "Error: No profile specified. Use '{{info.developer_cli}} pull [profile1,profile2,...]'"
+        echo "Error: No profile specified. Use 'im pull [profile1,profile2,...]'"
         listProfiles
         return 1
     fi
@@ -283,7 +283,7 @@ function prune {
 # force rm all containers
 ################################################################################
 function deleteContainers {
-    docker compose -f $INSTALL_PATH/docker-compose.yaml ps -a --format {% raw %}'{{ .Names }}'{% endraw %} | while read -r container; do
+    docker compose -f $INSTALL_PATH/docker-compose.yaml ps -a --format '{{ .Names }}' | while read -r container; do
         echo "- removing container $container" 
         docker container rm -f "$container" > /dev/null 2>&1
     done
@@ -319,7 +319,7 @@ function clean {
 
 ##########################################################################
 # Main 
-echo "$(date) {{info.developer_cli}} start $COMMAND $NEW_PROFILE"
+echo "$(date) im start $COMMAND $NEW_PROFILE"
 checkAndStartDocker
 
 case $COMMAND in
